@@ -4,11 +4,9 @@ from PIL import Image
 from PIL import ImageFilter
 from PIL.ImageDraw import Draw
 from PIL.ImageFont import truetype
+from io import BytesIO  # for Python3
 
-try:
-    from cStringIO import StringIO as BytesIO  # for Python2
-except ImportError:
-    from io import BytesIO  # for Python3
+# wheezy.captcha is captcha library
 try:
     from wheezy.captcha import image as wheezy_captcha
 except ImportError:
@@ -24,7 +22,7 @@ else:
 
 table = []
 for i in range(256):
-    table.append(i * 1.97)
+    table.append(i)
 
 
 class Captcha(object):

@@ -1,7 +1,9 @@
 import random
 import string
-from PIL import Image
-from claptcha.claptcha import Claptcha
+from captcha import ImageCaptcha
+from datetime import datetime
+
+image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
 
 
 def randomString():
@@ -9,17 +11,10 @@ def randomString():
     return "".join(rdLetters)
 
 
-c = Claptcha(randomString, "./data/DroidSansMono.ttf", (150, 60),
-             resample=Image.BICUBIC, noise=0.5)
-
-text, _ = c.write("./output/captcha1.png")
+text = randomString()
 print(text)
-
-text, _ = c.write("./output/captcha2.png")
-print(text)
-
-c.size = (150, 90)
-c.margin = (25, 25)
-
-text, _ = c.write("./output/captcha3.png")
-print(text)
+data = image.generate(text)
+createdDate = datetime.now().strftime("%c")
+convertedDate = int(datetime.strptime(createdDate, "%c").timestamp())
+imageName = 'captcha' + str(convertedDate)
+image.write(text, './output/' + imageName + '.png')
