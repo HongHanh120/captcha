@@ -27,11 +27,14 @@ for i in range(256):
 
 class Captcha(object):
     def generate(self, chars, format='png'):
+        """generate an image captcha of given characters"""
         """chars: text to be generated
             format: image file format"""
         im = self.generate_image(chars)
+        """create BytesIO like file object"""
         out = BytesIO()
         im.save(out, format=format)
+        """return back to the start"""
         out.seek(0)
         return out
 
@@ -49,9 +52,9 @@ class WheezyCaptcha(Captcha):
     """ create an image captcha with wheezy.captcha """
 
     def __init__(self, width=200, height=75, fonts=None):
-        self.width = width
-        self.height = height
-        self.fonts = fonts or DEFAULT_FONTS
+        self._width = width
+        self._height = height
+        self._fonts = fonts or DEFAULT_FONTS
 
     def generate_image(self, chars):
         text_drawings = [
@@ -63,13 +66,13 @@ class WheezyCaptcha(Captcha):
         fn = wheezy_captcha.captcha(
             drawings=[
                 wheezy_captcha.background(),
-                wheezy_captcha.text(fonts=self.fonts, drawings=text_drawings),
+                wheezy_captcha.text(fonts=self._fonts, drawings=text_drawings),
                 wheezy_captcha.curve(),
                 wheezy_captcha.noise(),
                 wheezy_captcha.smooth(),
             ],
-            width=self.width,
-            height=self.height,
+            width=self._width,
+            height=self._height,
         )
         return fn(chars)
 
@@ -102,9 +105,13 @@ class ImageCaptcha(Captcha):
         x2 = random.randint(w - int(w / 5), w)
         y1 = random.randint(int(h / 5), h - int(h / 5))
         y2 = random.randint(y1, h - int(h / 5))
+        """points to define the bounding box"""
         points = [x1, y1, x2, y2]
+        """ending angle (degrees)"""
         end = random.randint(160, 200)
+        """starting angle (degrees)"""
         start = random.randint(0, 20)
+        """draws an arc"""
         Draw(image).arc(points, start, end, fill=color)
         return image
 
