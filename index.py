@@ -1,6 +1,6 @@
 import random
 import string
-from test import ImageCaptcha
+from normal_captcha import ImageCaptcha
 from datetime import datetime
 
 image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
@@ -13,7 +13,6 @@ def randomString():
 
 text = randomString()
 print(text)
-data = image.generate(text)
 createdDate = datetime.now().strftime("%c")
 convertedDate = int(datetime.strptime(createdDate, "%c").timestamp())
 imageName = 'captcha' + str(convertedDate)

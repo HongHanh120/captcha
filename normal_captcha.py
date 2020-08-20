@@ -99,7 +99,6 @@ class ImageCaptcha(Captcha):
         def draw_character(c):
             font = random.choice(self.truefonts)
             w, h = draw.textsize(c, font=font)
-            # print([c, w, h])
 
             dx = random.randint(0, 4)
             dy = random.randint(0, 6)
@@ -123,15 +122,14 @@ class ImageCaptcha(Captcha):
             y2 = int(random.uniform(-dy, dy))
             w2 = w + abs(x1) + abs(x2)
             h2 = h + abs(y1) + abs(y2)
-            # print([w2, h2])
-            # print([(x1, y1), (-x1, h2 - y2), (w2 + x2, h2 + y2), (w2 - x2, -y1)])
+
             data = (x1, y1,
                     -x1, h2 - y2,
                     w2 + x2, h2 + y2,
                     w2 - x2, -y1)
             im = im.resize((w2, h2))
             im = im.transform((w, h), Image.QUAD, data)
-            """(w, h) the out put size
+            """(w, h) the output size
                 Image.QUAD the transformation method -> data"""
             return im
 
@@ -153,8 +151,15 @@ class ImageCaptcha(Captcha):
         for im in images:
             w, h = im.size
             mask = im.convert('L').point(table)
-            """mode L 8 pixels, black and white"""
+            """
+            convert im to table with mode L 
+            and maps this image through a lookup table
+            mode L 8 pixels, black and white """
             image.paste(im, (offset, int((self._height - h) / 2)), mask)
+            """paste another image into an image
+                offset = x coordinate in upper left
+                int((self._height - h) / 2)) = y coordinate in upper left
+                box = (x, y)"""
             offset = offset + w + random.randint(-rand, 0)
 
         if width > self._width:
