@@ -1,6 +1,6 @@
 import random
 import string
-from captcha import ImageCaptcha
+from test import ImageCaptcha
 from datetime import datetime
 
 image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
