@@ -16,9 +16,9 @@ for i in range(256):
 
 class Captcha(object):
     def generate(self, chars, format='png'):
-        """generate an image captcha of given characters"""
+        """generate an images captcha of given characters"""
         """chars: text to be generated
-            format: image file format"""
+            format: images file format"""
         im = self.generate_image(chars)
         """create BytesIO like file object"""
         out = BytesIO()
@@ -28,17 +28,17 @@ class Captcha(object):
         return out
 
     def write(self, chars, output, format='png'):
-        """Generate and write an image CAPTCHA data to the output
+        """Generate and write an images CAPTCHA data to the output
             chars: text to be generated
             output: output destination
-            format: image file format
+            format: images file format
         """
         im = self.generate_image(chars)
         return im.save(output, format=format)
 
 
 class ImageCaptcha(Captcha):
-    """ create an image captcha """
+    """ create an images captcha """
 
     def __init__(self, width=160, height=60, fonts=None, font_sizes=None):
         self._width = width
@@ -108,7 +108,7 @@ class ImageCaptcha(Captcha):
 
             # rotate
             im = im.crop(im.getbbox())
-            """getbbox calculates the bounding box of the image"""
+            """getbbox calculates the bounding box of the images"""
             im = im.rotate(random.uniform(-30, 30), Image.BILINEAR, expand=1)
             """random.uniform returns a random floating point number
                 BILINEAR linear interpolation"""
@@ -153,10 +153,10 @@ class ImageCaptcha(Captcha):
             mask = im.convert('L').point(table)
             """
             convert im to table with mode L 
-            and maps this image through a lookup table
+            and maps this images through a lookup table
             mode L 8 pixels, black and white """
             image.paste(im, (offset, int((self._height - h) / 2)), mask)
-            """paste another image into an image
+            """paste another images into an images
                 offset = x coordinate in upper left
                 int((self._height - h) / 2)) = y coordinate in upper left
                 box = (x, y)"""
