@@ -5,8 +5,7 @@ import numpy as np
 import PIL.Image
 import IPython.display as display
 import time
-import functools
-from tensorflow.keras.preprocessing.image import load_img, array_to_img
+from datetime import datetime
 from tensorflow.keras.applications import vgg19
 
 gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.5)
@@ -33,7 +32,7 @@ def tensor_to_image(tensor):
 
 
 content_path = './images/content/703876203_640.jpg'
-style_path = './images/style/id-van-goghs-the-starry-night-1.jpg'
+style_path = './images/style/starry-night-over-the-rhone-van-gogh-1888-vincent-van-gogh.jpg'
 
 
 def load_img(path_to_img):
@@ -226,7 +225,7 @@ def train_step(image):
 image = tf.Variable(content_image)
 
 start = time.time()
-epochs = 10
+epochs = 1
 steps_per_epoch = 100
 
 step = 0
@@ -288,5 +287,8 @@ def total_variation_loss(image):
 # print(tf.image.total_variation(image).numpy())
 
 
-file_name = './images/output/stylized-image.png'
+createdDate = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+convertedDate = int(datetime.strptime(createdDate, "%d/%m/%Y %H:%M:%S").timestamp())
+imageName = 'stylizedImage' + str(convertedDate)
+file_name = './images/output/' + imageName + '.png'
 tensor_to_image(image).save(file_name)
