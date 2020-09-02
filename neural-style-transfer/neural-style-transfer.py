@@ -5,6 +5,8 @@ import numpy as np
 import PIL.Image
 import IPython.display as display
 import time
+import os
+import random
 from datetime import datetime
 from tensorflow.keras.applications import vgg19
 
@@ -31,8 +33,19 @@ def tensor_to_image(tensor):
     return PIL.Image.fromarray(tensor)
 
 
+style_dir = './images/style/'
+style_paths = []
+for file in os.listdir(style_dir):
+    image_path = os.path.join(style_dir, file)
+    if file.endswith(".jpg"):
+        style_paths.append(image_path)
+    else:
+        if file.endswith(".png"):
+            style_paths.append(image_path)
+
 content_path = './images/content/703876203_640.jpg'
-style_path = './images/style/starry-night-over-the-rhone-van-gogh-1888-vincent-van-gogh.jpg'
+style_path = random.choice(style_paths)
+# print(style_path)
 
 
 def load_img(path_to_img):
