@@ -28,9 +28,9 @@ class Captcha(object):
         return out
 
     def write(self, chars, output, format='png'):
-        """Generate and write an images CAPTCHA data to the output
+        """Generate and write an images CAPTCHA data to the normal
             chars: text to be generated
-            output: output destination
+            normal: normal destination
             format: images file format
         """
         im = self.generate_image(chars)
@@ -129,7 +129,7 @@ class ImageCaptcha(Captcha):
                     w2 - x2, -y1)
             im = im.resize((w2, h2))
             im = im.transform((w, h), Image.QUAD, data)
-            """(w, h) the output size
+            """(w, h) the normal size
                 Image.QUAD the transformation method -> data"""
             return im
 

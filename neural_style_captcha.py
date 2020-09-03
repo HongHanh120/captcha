@@ -1,22 +1,49 @@
-import tensorflow as tf
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-import numpy as np
-import PIL.Image
-import IPython.display as display
-import time
 import os
+import time
 import random
+import string
+import PIL.Image
+import numpy as np
+import tensorflow as tf
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+import matplotlib.image as mpimg
+import IPython.display as display
 from datetime import datetime
+from normal_captcha import ImageCaptcha
 from tensorflow.keras.applications import vgg19
+
+# image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
+from claptcha.claptcha import Claptcha
+
+
+def random_string():
+    random_letters = (random.choice(string.ascii_uppercase) for _ in range(6))
+    return "".join(random_letters)
+
+
+text = random_string()
+
+c = Claptcha(text, './data/DroidSansMono.ttf')
+text, image = c.image
+print(text)
+
+created_date = datetime.now().strftime("%c")
+converted_date = int(datetime.strptime(created_date, "%c").timestamp())
+image_name = 'captcha_' + str(converted_date)
+image_dir = 'images/normal/'
+abs_image_path = os.path.join(image_dir, image_name + ".png")
+
+text, file = c.write(abs_image_path)
+
+# img = mpimg.imread(abs_image_path)
+# imgplot = plt.imshow(img)
+# plt.show()
 
 gpu_options = tf.compat.v1.GPUOptions(per_process_gpu_memory_fraction=0.5)
 config = tf.compat.v1.ConfigProto(gpu_options=gpu_options)
 config.gpu_options.allow_growth = True
 session = tf.compat.v1.Session(config=config)
-
-gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
 
 batch_sizes = tf.data.Dataset.range(8)
 
@@ -33,23 +60,22 @@ def tensor_to_image(tensor):
     return PIL.Image.fromarray(tensor)
 
 
-style_dir = './images/style/'
+style_dir = "./images/style/"
 style_paths = []
 for file in os.listdir(style_dir):
-    image_path = os.path.join(style_dir, file)
-    if file.endswith(".jpg"):
-        style_paths.append(image_path)
-    else:
-        if file.endswith(".png"):
-            style_paths.append(image_path)
+    style_image_path = os.path.join(style_dir, file)
+    if file.endswith('.jpg'):
+        style_paths.append(style_image_path)
+    if file.endswith('.png'):
+        style_paths.append(style_image_path)
 
-content_path = './images/content/703876203_640.jpg'
+content_path = abs_image_path
 style_path = random.choice(style_paths)
-# print(style_path)
+print(style_path)
 
 
 def load_img(path_to_img):
-    max_dim = 512
+    max_dim = 160
     img = tf.io.read_file(path_to_img)
     img = tf.image.decode_image(img, channels=3)
     img = tf.image.convert_image_dtype(img, tf.float32)
@@ -77,25 +103,6 @@ def imshow(image, title=None):
 content_image = load_img(content_path)
 style_image = load_img(style_path)
 
-# plt.subplot(1, 2, 1)
-# imshow(content_image, 'Content Image')
-#
-# plt.subplot(1, 2, 2)
-# imshow(style_image, 'Style Image')
-
-# plt.show()
-
-# x = vgg19.preprocess_input(content_image * 255)
-# x = tf.image.resize(x, (224, 224))
-# vgg = vgg19.VGG19(include_top=True, weights='imagenet')
-# prediction_probabilities = vgg(x)
-# prediction_probabilities.shape
-
-
-# print()
-# for layer in vgg.layers:
-#     print(layer.name)
-
 content_layers = ['block5_conv2']
 
 style_layers = ['block1_conv1',
@@ -122,15 +129,6 @@ style_extractor = vgg_layers(style_layers)
 style_outputs = style_extractor(style_image * 255)
 
 
-# for name, normal in zip(style_layers, style_outputs):
-#     print(name)
-#     print(" shape: ", normal.numpy().shape)
-#     print(" min: ", normal.numpy().min())
-#     print(" max: ", normal.numpy().max())
-#     print(" mean: ", normal.numpy().mean())
-#     print()
-
-
 def gram_matrix(input_tensor):
     result = tf.linalg.einsum('bijc,bijd->bcd', input_tensor, input_tensor)
     input_shape = tf.shape(input_tensor)
@@ -148,7 +146,6 @@ class StyleContentModel(tf.keras.models.Model):
         self.vgg.trainable = False
 
     def call(self, inputs):
-        "Expects float input in [0,1]"
         inputs = inputs * 255.0
         preprocessed_input = tf.keras.applications.vgg19.preprocess_input(inputs)
         outputs = self.vgg(preprocessed_input)
@@ -172,23 +169,6 @@ class StyleContentModel(tf.keras.models.Model):
 extractor = StyleContentModel(style_layers, content_layers)
 
 results = extractor(tf.constant(content_image))
-
-# print('Styles:')
-# for name, normal in sorted(results['style'].items()):
-#   print("  ", name)
-#   print("    shape: ", normal.numpy().shape)
-#   print("    min: ", normal.numpy().min())
-#   print("    max: ", normal.numpy().max())
-#   print("    mean: ", normal.numpy().mean())
-#   print()
-#
-# print("Contents:")
-# for name, normal in sorted(results['content'].items()):
-#   print("  ", name)
-#   print("    shape: ", normal.numpy().shape)
-#   print("    min: ", normal.numpy().min())
-#   print("    max: ", normal.numpy().max())
-#   print("    mean: ", normal.numpy().mean())
 
 style_targets = extractor(style_image)['style']
 content_targets = extractor(content_image)['content']
@@ -238,7 +218,7 @@ def train_step(image):
 image = tf.Variable(content_image)
 
 start = time.time()
-epochs = 1
+epochs = 10
 steps_per_epoch = 100
 
 step = 0
@@ -248,13 +228,13 @@ for n in range(epochs):
         step += 1
         train_step(image)
         print('.', end='')
+
     display.clear_output(wait=True)
     display.display(tensor_to_image(image))
-    # print("Train step: {}".format(step))
 
 
 end = time.time()
-print("Total time: {:.1f}".format(end-start))
+print('Total time: {:.1f}'.format(end - start))
 
 
 def high_pass_x_y(image):
@@ -268,40 +248,13 @@ x_deltas, y_deltas = high_pass_x_y(content_image)
 plt.figure(figsize=(14, 10))
 
 
-# plt.subplot(2, 2, 1)
-# imshow(clip_0_1(2 * y_deltas + 0.5), 'Horizontal Deltas: Original')
-#
-# plt.subplot(2, 2, 2)
-# imshow(clip_0_1(2 * x_deltas + 0.5), 'Vertical Deltas: Original')
-#
-# x_deltas, y_deltas = high_pass_x_y(image)
-#
-# plt.subplot(2, 2, 3)
-# imshow(clip_0_1(2 * y_deltas + 0.5), 'Horizontal Deltas: Styled')
-#
-# plt.subplot(2, 2, 4)
-# imshow(clip_0_1(2 * x_deltas + 0.5), 'Vertical Deltas: Styled')
-
-# sobel = tf.image.sobel_edges(content_image)
-# plt.subplot(1, 2, 1)
-# imshow(clip_0_1(sobel[..., 0] / 4 + 0.5), 'Horizontal Sobel-edges')
-#
-# plt.subplot(1, 2, 2)
-# imshow(clip_0_1(sobel[..., 1] / 4 + 0.5), 'Vertical Sobel-edges')
-#
-# plt.show()
-
-
 def total_variation_loss(image):
     x_deltas, y_deltas = high_pass_x_y(image)
     return tf.reduce_sum(tf.abs(x_deltas)) + tf.reduce_sum(tf.abs(y_deltas))
 
-# print(total_variation_loss(image).numpy())
-# print(tf.image.total_variation(image).numpy())
 
-
-createdDate = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-convertedDate = int(datetime.strptime(createdDate, "%d/%m/%Y %H:%M:%S").timestamp())
-imageName = 'stylizedImage' + str(convertedDate)
-file_name = './images/normal/' + imageName + '.png'
+created_output_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+converted_output_date = int(datetime.strptime(created_output_date, "%d/%m/%Y %H:%M:%S").timestamp())
+output_image_name = 'styled_captcha_' + str(converted_output_date)
+file_name = './images/neural-style/' + output_image_name + '.png'
 tensor_to_image(image).save(file_name)

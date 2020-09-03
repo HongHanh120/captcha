@@ -20,19 +20,19 @@ class Claptcha(object):
     r"""
     Claptcha class.
 
-    Claptcha can be use to create PIL Images, BytesIO objects and output
+    Claptcha can be use to create PIL Images, BytesIO objects and normal
     files with CAPTCHA messages. User has to provide at least a source
-    (a string containing text used in CAPTCHA output or a callable object
+    (a string containing text used in CAPTCHA normal or a callable object
     returning a string) and a filepath to TTF font file.
 
-    Additionally, Claptcha allows to define output size and estimated
+    Additionally, Claptcha allows to define normal size and estimated
     margins, used in automatically calculating font size. By default,
-    Claptcha generates a PNG output using bicubic resampling filter
+    Claptcha generates a PNG normal using bicubic resampling filter
     (configurable).
 
     Optionally, user can define white noise, making it less readable for
     OCR software. However, this significantly extends execution time of
-    output creation.
+    normal creation.
     """
 
     def __init__(self, source, font,
@@ -43,7 +43,7 @@ class Claptcha(object):
 
         Claptcha object requires at least a text source (a string or a
         callable object returning a string) and a path to a TTF file. Both
-        are used in generating text in returned CAPTCHA output with a given
+        are used in generating text in returned CAPTCHA normal with a given
         font. Callable object allow for creating variable CAPTCHAs without
         redeclaring Claptcha instance, e.g. a randomized stream of characters
 
@@ -70,10 +70,10 @@ class Claptcha(object):
               Image.BICUBIC. Default: Image.BILINEAR.
             * *noise* (``float``) --
               Parameter from range [0,1] used in creating noise effect in
-              CAPTCHA output. If not larger than 1/255, no noise if generated.
+              CAPTCHA normal. If not larger than 1/255, no noise if generated.
               It is advised to not use this option if you want to focus on
               efficiency, since generating noise can significantly extend
-              output creation time. Default: 0.
+              normal creation time. Default: 0.
         """
         self.source = source
         self.size = size
@@ -92,10 +92,10 @@ class Claptcha(object):
         Images are generated on the fly, using given text source, TTF font and
         other parameters passable through __init__. All letters in used text
         are morphed. Also a line is morphed and pased onto CAPTCHA text.
-        Additionaly, if self.noise > 1/255, a "snowy" output is merged with
-        CAPTCHA output with a 50/50 ratio.
+        Additionaly, if self.noise > 1/255, a "snowy" normal is merged with
+        CAPTCHA normal with a 50/50 ratio.
         Property returns a pair containing a string with text in returned
-        output and output itself.
+        normal and normal itself.
 
         :returns: ``tuple`` (CAPTCHA text, Image object)
         """
@@ -129,9 +129,9 @@ class Claptcha(object):
         r"""
         Tuple with a CAPTCHA text and a BytesIO object.
 
-        Property calls self.output and saves output contents in a BytesIO
+        Property calls self.normal and saves normal contents in a BytesIO
         instance, returning CAPTCHA text and BytesIO as a tuple.
-        See: output.
+        See: normal.
 
         :returns: ``tuple`` (CAPTCHA text, BytesIO object)
         """
@@ -143,14 +143,14 @@ class Claptcha(object):
 
     def write(self, file):
         r"""
-        Save CAPTCHA output in given filepath.
+        Save CAPTCHA normal in given filepath.
 
-        Property calls self.output and saves output contents in a file,
+        Property calls self.normal and saves normal contents in a file,
         returning CAPTCHA text and filepath as a tuple.
-        See: output.
+        See: normal.
 
         :param file:
-            Path to file, where CAPTCHA output will be saved.
+            Path to file, where CAPTCHA normal will be saved.
         :returns: ``tuple`` (CAPTCHA text, filepath)
         """
         text, image = self.image
@@ -188,7 +188,7 @@ class Claptcha(object):
 
     @property
     def size(self):
-        """CAPTCHA output size."""
+        """CAPTCHA normal size."""
         return self.__size
 
     @size.setter
@@ -198,34 +198,34 @@ class Claptcha(object):
 
     @property
     def w(self):
-        """CAPTCHA output width."""
+        """CAPTCHA normal width."""
         return self.size[0]
 
     @property
     def h(self):
-        """CAPTCHA output height."""
+        """CAPTCHA normal height."""
         return self.size[1]
 
     @property
     def margin(self):
-        """CAPTCHA output estimated margin."""
+        """CAPTCHA normal estimated margin."""
         return self.__margin
 
     @margin.setter
     @_with_pair_validator
     def margin(self, margin):
         if 2*margin[1] > self.h:
-            raise ClaptchaError("Margin y cannot be larger than half of output height.")
+            raise ClaptchaError("Margin y cannot be larger than half of normal height.")
         self.__margin = (int(margin[0]), int(margin[1]))
 
     @property
     def margin_x(self):
-        """CAPTCHA output estimated x margin."""
+        """CAPTCHA normal estimated x margin."""
         return self.__margin[0]
 
     @property
     def margin_y(self):
-        """CAPTCHA output estimated y margin."""
+        """CAPTCHA normal estimated y margin."""
         return self.__margin[1]
 
     def _with_file_validator(func):
@@ -279,7 +279,7 @@ class Claptcha(object):
             # Transform
             c_image = self._rndLetterTransform(c_image)
 
-            # Paste onto output
+            # Paste onto normal
             image.paste(c_image, (x+offset, y), c_image)
             offset += c_size[0]
 
@@ -298,7 +298,7 @@ class Claptcha(object):
         y2 = int(h * random.uniform(0, 1))
 
         # Line width modifier was chosen as an educated guess
-        # based on default output area.
+        # based on default normal area.
         l_width = round((w * h)**0.5 * 2.284e-2)
 
         # Draw
@@ -308,7 +308,7 @@ class Claptcha(object):
         l_image = self._rndLineTransform(l_image)
         l_image = l_image.resize(image.size, resample=self.resample)
 
-        # Paste onto output
+        # Paste onto normal
         image.paste(l_image, (0, 0), l_image)
 
     def _whiteNoise(self, size):
