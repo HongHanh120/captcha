@@ -15,11 +15,11 @@ for i in range(256):
 
 
 class Captcha(object):
-    def generate(self, chars, format='png'):
+    def generate(self, chars, is_noise_dots, is_noise_curve, format='png'):
         """generate an images captcha of given characters"""
         """chars: text to be generated
             format: images file format"""
-        im = self.generate_image(chars)
+        im = self.generate_image(chars, is_noise_dots, is_noise_curve)
         """create BytesIO like file object"""
         out = BytesIO()
         im.save(out, format=format)
@@ -27,13 +27,13 @@ class Captcha(object):
         out.seek(0)
         return out
 
-    def write(self, chars, output, format='png'):
+    def write(self, chars, output, is_noise_dots, is_noise_curve, format='png'):
         """Generate and write an images CAPTCHA data to the normal
             chars: text to be generated
             normal: normal destination
             format: images file format
         """
-        im = self.generate_image(chars)
+        im = self.generate_image(chars, is_noise_dots, is_noise_curve)
         return im.save(output, format=format)
 
 
@@ -167,12 +167,14 @@ class ImageCaptcha(Captcha):
 
         return image
 
-    def generate_image(self, chars):
+    def generate_image(self, chars, is_noise_dots, is_noise_curve):
         background = random_color(238, 255)
         color = random_color(10, 200, random.randint(220, 255))
         im = self.create_captcha_image(chars, color, background)
-        self.create_noise_dots(im, color)
-        self.create_noise_curve(im, color)
+        if is_noise_dots == 1:
+            self.create_noise_dots(im, color)
+        if is_noise_curve == 1:
+            self.create_noise_curve(im, color)
         im = im.filter(ImageFilter.SMOOTH)
         return im
 

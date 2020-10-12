@@ -232,7 +232,6 @@ for n in range(epochs):
     display.clear_output(wait=True)
     display.display(tensor_to_image(image))
 
-
 end = time.time()
 print('Total time: {:.1f}'.format(end - start))
 
