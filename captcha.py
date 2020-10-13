@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import string
+import getopt
 from normal_captcha import ImageCaptcha
 from datetime import datetime
 
@@ -9,35 +10,54 @@ arguments = len(sys.argv)
 print("Total arguments passed: ", arguments)
 print("Name of Python script: ", sys.argv[0])
 
-inputs = sys.argv[1].split(",")
-inputs_length = len(inputs)
+inputs = sys.argv[1].split()
 print(inputs)
+# string = inputs.split()
+inputs_length = len(inputs)
+optlist, args = getopt.getopt(inputs, '', ['text=', 'noise-dots=', 'noise-curve='])
+print(optlist)
+# print(args)
 
 
 def random_string():
-    random_letters = (random.choice(string.ascii_uppercase) for _ in range(6))
+    random_letters = (random.choice(string.ascii_uppercase + string.digits) for _ in range(6))
     return "".join(random_letters)
 
 
-text_length = len(inputs[0])
+text = ''
+is_noise_dots = ''
+is_noise_curve = ''
+
+for opt, arg in optlist:
+    if opt == '--text':
+        text = arg
+    if opt == '--noise-dots':
+        is_noise_dots = arg
+        if is_noise_dots == '' or is_noise_dots == '0' \
+                or is_noise_dots == 'F' or is_noise_dots == 'false':
+            is_noise_dots = 0
+        if is_noise_dots == '1' or is_noise_dots == 'T' or is_noise_dots == 'true':
+            is_noise_dots = 1
+
+    if opt == '--noise-curve':
+        is_noise_curve = arg
+        if is_noise_curve == '' or is_noise_curve == '0' \
+                or is_noise_curve == 'F' or is_noise_curve == 'false':
+            is_noise_curve = 0
+        if is_noise_curve == '1' or is_noise_curve == 'T' or is_noise_curve == 'true':
+            is_noise_curve = 1
+
+text_length = len(text)
 
 if text_length:
-    text = inputs[0]
+    captcha = text
 else:
-    text = random_string()
-print(text)
+    captcha = random_string()
 
-options = []
-for i in range(1, inputs_length):
-    if inputs[i] == '':
-        inputs[i] = '0'
 
-    option = int(inputs[i])
-    options.append(option)
-
-is_noise_dots = options[0]
-is_noise_curve = options[1]
-print(options)
+print(captcha)
+print(is_noise_dots)
+print(is_noise_curve)
 
 image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
 
@@ -47,4 +67,4 @@ image_name = 'captcha_' + str(converted_date)
 image_dir = 'images/normal/'
 abs_image_path = os.path.join(image_dir, image_name + ".png")
 
-image.write(text.upper(), abs_image_path, is_noise_dots, is_noise_curve)
+image.write(captcha.upper(), abs_image_path, is_noise_dots, is_noise_curve)
