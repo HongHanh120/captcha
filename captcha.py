@@ -12,7 +12,6 @@ print("Name of Python script: ", sys.argv[0])
 
 inputs = sys.argv[1].split()
 print(inputs)
-# string = inputs.split()
 inputs_length = len(inputs)
 optlist, args = getopt.getopt(inputs, '', ['text=', 'noise-dots=', 'noise-curve='])
 print(optlist)
@@ -55,9 +54,9 @@ else:
     captcha = random_string()
 
 
-print(captcha)
-print(is_noise_dots)
-print(is_noise_curve)
+# print(captcha)
+# print(is_noise_dots)
+# print(is_noise_curve)
 
 image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
 
