@@ -72,7 +72,7 @@ class ImageCaptcha(Captcha):
     def create_noise_circles(image, number):
         w, h = image.size
         while number:
-            distance = random.randint(1, 5)
+            distance = random.randint(1, 10)
             x1 = random.randint(0, w)
             x2 = x1 + distance
             y1 = random.randint(0, h)
@@ -89,7 +89,7 @@ class ImageCaptcha(Captcha):
     def create_noise_triangle(image, number):
         w, h = image.size
         while number:
-            distance = random.randint(1, 5)
+            distance = random.randint(1, 10)
             x1 = random.randint(int(w/10), w - int(w/10))
             x2 = x1 + distance
             y1 = random.randint(int(h/10), h - int(h/10))
@@ -218,6 +218,7 @@ class ImageCaptcha(Captcha):
         average = int(text_width / len(chars))
         offset = int(average * 0.1)
 
+        # count = 0
         for im in images:
             w, h = im.size
             mask = im.convert('L').point(table)
@@ -225,12 +226,14 @@ class ImageCaptcha(Captcha):
             convert im to table with mode L 
             and maps this images through a lookup table
             mode L 8 pixels, black and white """
+            # im.save("mask_" + str(count) + '.png', format='png')
             image.paste(im, (offset, int((self._height - h) / 2)), mask)
             """paste another images into an images
                 offset = x coordinate in upper left
                 int((self._height - h) / 2)) = y coordinate in upper left
                 box = (x, y)"""
             offset = offset + w
+            # count += 1
 
         if width > self._width:
             image = image.resize((self._width, self._height))
@@ -239,6 +242,7 @@ class ImageCaptcha(Captcha):
 
     def generate_image(self, chars, is_rotate, is_noise_cubes, is_noise_lines):
         background = random_color(238, 255)
+        # background = (255, 255, 255)
         text_color = random_color(10, 200, random.randint(220, 255))
         im = self.create_captcha_image(chars, text_color, background, is_rotate)
         if is_noise_cubes == 1 and is_noise_lines == 1:

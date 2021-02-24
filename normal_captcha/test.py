@@ -3,8 +3,9 @@ import sys
 import random
 import string
 import getopt
-from test_captcha import ImageCaptcha
 from datetime import datetime
+
+from test_captcha import ImageCaptcha
 
 arguments = len(sys.argv)
 print("Total arguments passed: ", arguments)
@@ -72,5 +73,7 @@ converted_date = int(datetime.strptime(created_date, "%c").timestamp())
 image_name = 'captcha_' + str(converted_date)
 image_dir = 'images/normal/'
 abs_image_path = os.path.join(image_dir, image_name + ".png")
+
+# print(abs_image_path)
 
 image.write(captcha.upper(), abs_image_path, is_rotate, is_noise_cubes, is_noise_lines)

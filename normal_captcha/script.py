@@ -3,7 +3,7 @@ import sys
 import random
 import string
 import getopt
-from normal_captcha import ImageCaptcha
+from generate_normal_captcha import ImageCaptcha
 from datetime import datetime
 
 arguments = len(sys.argv)
@@ -58,12 +58,12 @@ else:
 # print(is_noise_dots)
 # print(is_noise_curve)
 
-image = ImageCaptcha(fonts=['./data/DroidSansMono.ttf'])
+image = ImageCaptcha(fonts=['../data/DroidSansMono.ttf'])
 
 created_date = datetime.now().strftime("%c")
 converted_date = int(datetime.strptime(created_date, "%c").timestamp())
 image_name = 'captcha_' + str(converted_date)
-image_dir = 'images/normal/'
+image_dir = '../images/normal/'
 abs_image_path = os.path.join(image_dir, image_name + ".png")
 
 image.write(captcha.upper(), abs_image_path, is_noise_dots, is_noise_curve)
